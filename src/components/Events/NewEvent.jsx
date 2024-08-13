@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Modal from "../UI/Modal.jsx";
 import EventForm from "./EventForm.jsx";
 import { useMutation } from "@tanstack/react-query";
-import { createNewEvent } from "../../util/http.js";
+import { createNewEvent, queryClient } from "../../util/http.js";
 import ErrorBlock from "../UI/ErrorBlock.jsx";
 
 export default function NewEvent() {
@@ -15,6 +15,12 @@ export default function NewEvent() {
   //error -> informasi/pesan error
   const { mutate, isPending, isError, error } = useMutation({
     mutationFn: createNewEvent,
+    onSuccess: () => {
+      //refetch data
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      //function yang akan di jalankan ketika mutate request ke server berhasil
+      navigate("/events");
+    },
   });
 
   function handleSubmit(formData) {
