@@ -19,7 +19,11 @@ export default function EventDetails() {
   const { mutate } = useMutation({
     mutationFn: deleteEvent,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({
+        queryKey: ["events"],
+        //agar tidak langsung fetch queryKey event detail/id, tapi ketika masuk ke halaman events baru di refetch semua query key yg mempunyai nama events
+        refetchType: "none",
+      });
       navigate("/events");
     },
   });
