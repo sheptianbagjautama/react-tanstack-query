@@ -8,7 +8,7 @@ export default function NewEventsSection() {
   const { data, isPending, isError, error } = useQuery({
     queryKey: ["events"],
     queryFn: fetchEvents,
-    staleTime: 5000, //Untuk menunda request selanjutnya misalkan di tunga selama 5 detik
+    staleTime: 5000, //Untuk menunda request selanjutnya misalkan di tunda selama 5 detik
     // gcTime: 1000, //Berapa lama data akan di keep setelah waktu tsb tercapat data akan di discard
   });
 
