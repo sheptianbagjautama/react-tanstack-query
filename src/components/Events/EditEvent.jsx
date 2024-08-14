@@ -93,7 +93,6 @@ export default function EditEvent() {
           <p>Sending data...</p>
         ) : (
           <>
-            {" "}
             <Link to="../" className="button-text">
               Cancel
             </Link>
