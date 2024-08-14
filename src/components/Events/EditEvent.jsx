@@ -4,7 +4,7 @@ import Modal from "../UI/Modal.jsx";
 import LoadingIndicator from "../UI/LoadingIndicator.jsx";
 import EventForm from "./EventForm.jsx";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { fetchEvent, updateEvent } from "../../util/http.js";
+import { fetchEvent, queryClient, updateEvent } from "../../util/http.js";
 import ErrorBlock from "../UI/ErrorBlock.jsx";
 
 export default function EditEvent() {
@@ -16,9 +16,33 @@ export default function EditEvent() {
     queryFn: ({ signal }) => fetchEvent({ signal, id: params.id }),
   });
 
-  const { mutate } = useMutation({ mutationFn: updateEvent });
+  const { mutate } = useMutation({
+    mutationFn: updateEvent,
+    //onMutate akan di panggil ketika mutate()function di jalankan
+    //params data ini otomatis ada karena di function handle submit menjalankan mutate dengan object params id dan event
+    onMutate: async (data) => {
+      const newEvent = data.event;
+
+      await queryClient.cancelQueries({ queryKey: ["events", params.id] });
+      //state lama , untuk keperluan jika mutate gagal data di kembalikan ke data sebelumnya
+      const previousEvent = queryClient.getQueryData(["events", params.id]);
+      queryClient.setQueriesData(["events", params.id], newEvent);
+
+      //previousEvent ini akan menjadi context di params onError
+      return { previousEvent };
+    },
+    //ketika mutation gagal
+    onError: (error, data, context) => {
+      console.log("masuk on error");
+      queryClient.setQueryData(["events", params.id], context.previousEvent);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(["events", params.id]);
+    },
+  });
 
   function handleSubmit(formData) {
+    //params ini bisa digunakan contohnya di function onMutate diatas
     mutate({ id: params.id, event: formData });
     navigate("../");
   }
